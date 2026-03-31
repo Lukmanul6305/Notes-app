@@ -17,6 +17,7 @@ import DetailNotePage from './pages/DetailNotePage';
 function App() {
   const [authedUser, setAuthedUser] = useState(null);
   const [initializing, setinitializing] = useState(true);
+  const [locale, setLocale] = useState('id');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,6 +46,18 @@ function App() {
     navigate('/*')
   }
 
+  const toggleLocale = () => {
+    setLocale((prevLocale) => {
+      return prevLocale === 'id' ? 'en' : 'id';
+    });
+  };
+  const contextValue = React.useMemo(() => {
+    return {
+      locale,
+      toggleLocale
+    };
+  }, [locale]);
+
   if (initializing) {
     return <p>Loading...</p>
   }
@@ -59,7 +72,7 @@ function App() {
   }
 
   return (
-    <div>
+    <LocaleContext.Provider value={contextValue}>
       <header>
         <Navigation logout={onLogout} username={authedUser} />
       </header>
@@ -71,7 +84,7 @@ function App() {
           <Route path="/notes/:id" element={<DetailNotePage />} />
         </Routes>
       </main>
-    </div>
+    </ LocaleContext.Provider>
   )
 }
 

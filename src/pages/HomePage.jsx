@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
 import NotesList from "../components/NotesList";
 import { getActiveNotes, deleteNote, archiveNote } from "../utils/network-data";
+import SearchBar from "../components/SearchBar";
+import { useSearchParams } from "react-router-dom";
 
 const HomePage = () => {
     const [notes, setNotes] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [keyword, setKeyword] = React.useState(() => {
+        return searchParams.get('keyword') || ''
+    });
 
     useEffect(() => {
         const fetchNote = async () => {
@@ -27,6 +33,15 @@ const HomePage = () => {
         setNotes(data);
     }
 
+    function onKeywordChangeHandler(keyword) {
+        setKeyword(keyword);
+        setSearchParams({ keyword });
+    }
+
+    const filteredNotes = notes.filter((note) => {
+        return note.title.toLowerCase().includes(keyword.toLowerCase());
+    });
+
     return (
         <section className="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
 
@@ -38,12 +53,15 @@ const HomePage = () => {
                     Jangan sampai ada ide yang terlewatkan.
                 </p>
             </div>
+            <SearchBar keyword={keyword} keywordChange={onKeywordChangeHandler} />
             {isLoading ? (
                 <div className="flex justify-center items-center min-h-200px">
                     <p className="text-gray-500 font-medium animate-pulse">Sabar Ya...</p>
                 </div>
             ) : (
-                <NotesList notes={notes} onDelete={onDeleteHandler} onArchive={onArchiveHandler} />
+                <>
+                    <NotesList notes={filteredNotes} onDelete={onDeleteHandler} onArchive={onArchiveHandler} />
+                </>
             )}
         </section>
     );

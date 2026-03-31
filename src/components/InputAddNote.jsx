@@ -1,20 +1,15 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
 import { addNote } from '../utils/network-data';
+import useInput from '../Hooks/useInput';
 
 const InputAddNote = () => {
-    const [title, setTitle] = useState('');
-    const [body, setBody] = useState('');
+    const [title, onTitle] = useInput('');
+    const [body, onBody] = useInput('');
 
     // 2. Siapkan alat untuk pindah halaman
     const navigate = useNavigate();
 
-    function onTitle(e) {
-        setTitle(e.target.value);
-    }
-    function onBody(e) {
-        setBody(e.target.value);
-    }
     async function onSubmitAddNote(e) {
         e.preventDefault();
 

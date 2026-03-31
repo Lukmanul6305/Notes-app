@@ -1,16 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { login } from '../utils/network-data';
+import useInput from '../Hooks/useInput';
 
 const LoginInput = ({ loginSuccess }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, onEmailLogin] = useInput('');
+    const [password, onPasswordLogin] = useInput('');
 
-    function onEmailLogin(e) {
-        setEmail(e.target.value);
-    }
-    function onPasswordLogin(e) {
-        setPassword(e.target.value);
-    }
     async function onSubmitLogin(e) {
         e.preventDefault();
         const result = await login({ email, password })

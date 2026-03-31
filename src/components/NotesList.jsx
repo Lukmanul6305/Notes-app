@@ -1,7 +1,7 @@
 import React from 'react';
 import NoteItem from './NoteItem';
 
-const NotesList = ({ notes }) => {
+const NotesList = ({ notes = [], onDelete, onArchive }) => {
     const notesLength = notes.length === 0
 
     return !notes || notesLength ? (
@@ -13,6 +13,8 @@ const NotesList = ({ notes }) => {
                     <NoteItem
                         key={note.id}
                         id={note.id}
+                        onDelete={onDelete}
+                        onArchive={onArchive}
                         {...note}
                     />
                 ))

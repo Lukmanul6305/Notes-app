@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
-import { addNote } from '../utils/local-data';
+import { addNote } from '../utils/network-data';
 
 const InputAddNote = () => {
     const [title, setTitle] = useState('');
@@ -15,11 +15,11 @@ const InputAddNote = () => {
     function onBody(e) {
         setBody(e.target.value);
     }
-    function onSubmitAddNote(e) {
+    async function onSubmitAddNote(e) {
         e.preventDefault();
 
         // 3. Perbaikan pemanggilan addNote menggunakan Object {}
-        addNote({ title, body });
+        await addNote({ title, body });
 
         // 4. Setelah disimpan, pulangkan user ke Beranda
         navigate('/home');
@@ -37,7 +37,7 @@ const InputAddNote = () => {
             />
             <textarea
                 placeholder='Isi catatan'
-                className='px-4 py-2 font-semibold min-h-[150px] rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 transition-all'
+                className='px-4 py-2 font-semibold min-h-150px rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 transition-all'
                 value={body}
                 onChange={onBody}
                 required

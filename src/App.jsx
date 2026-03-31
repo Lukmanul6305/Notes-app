@@ -11,6 +11,8 @@ import Navigation from './components/Navigation';
 import { useNavigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AddNotePage from './pages/AddNotePage';
+import ArchiveNotePage from './pages/ArchiveNotePage';
+import DetailNotePage from './pages/DetailNotePage';
 
 function App() {
   const [authedUser, setAuthedUser] = useState(null);
@@ -65,6 +67,8 @@ function App() {
         <Routes>
           <Route path='/home' element={<HomePage />} />
           <Route path='/add' element={<AddNotePage />} />
+          <Route path='/archive' element={<ArchiveNotePage />} />
+          <Route path="/notes/:id" element={<DetailNotePage />} />
         </Routes>
       </main>
     </div>

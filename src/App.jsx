@@ -1,38 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom'
+import React, { useState, useEffect, useMemo } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 
-import './App.css'
 import RegisterPage from './pages/RegisterPage';
-
-import { getUserLogged, putAccessToken } from "./utils/network-data";
 import LoginPage from './pages/LoginPage';
-
 import Navigation from './components/Navigation';
-import { useNavigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AddNotePage from './pages/AddNotePage';
 import ArchiveNotePage from './pages/ArchiveNotePage';
 import DetailNotePage from './pages/DetailNotePage';
 
+import { getUserLogged, putAccessToken } from "./utils/network-data";
+
+import LocaleContext from "./contexts/LocaleContext";
+import ThemeContext from "./contexts/ThemeContext";
+
 function App() {
   const [authedUser, setAuthedUser] = useState(null);
-  const [initializing, setinitializing] = useState(true);
-  const [locale, setLocale] = useState('id');
+  const [initializing, setInitializing] = useState(true);
+
+  const [locale, setLocale] = useState(() => localStorage.getItem('locale') || 'id');
+
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
   const navigate = useNavigate();
 
   useEffect(() => {
     async function checkLoginStatus() {
       const { data, error } = await getUserLogged();
-
       if (!error) {
         setAuthedUser(data);
       } else {
         setAuthedUser(null);
       }
-      setinitializing(false);
+      setInitializing(false);
     }
     checkLoginStatus();
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    localStorage.setItem('locale', locale);
+
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme, locale]);
 
   async function onLoginSuccess({ accessToken }) {
     putAccessToken(accessToken);
@@ -40,6 +54,7 @@ function App() {
     setAuthedUser(data);
     navigate('/home');
   }
+
   function onLogout() {
     setAuthedUser(null);
     putAccessToken('');
@@ -47,45 +62,53 @@ function App() {
   }
 
   const toggleLocale = () => {
-    setLocale((prevLocale) => {
-      return prevLocale === 'id' ? 'en' : 'id';
-    });
+    setLocale((prevLocale) => prevLocale === 'id' ? 'en' : 'id');
   };
-  const contextValue = React.useMemo(() => {
-    return {
-      locale,
-      toggleLocale
-    };
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => prevTheme === 'light' ? 'dark' : 'light');
+  };
+
+  const localeContextValue = useMemo(() => {
+    return { locale, toggleLocale };
   }, [locale]);
 
+  const themeContextValue = useMemo(() => {
+    return { theme, toggleTheme };
+  }, [theme]);
+
   if (initializing) {
-    return <p>Loading...</p>
+    return <p className="text-center mt-10">Loading...</p>
   }
 
   if (authedUser === null) {
     return (
       <Routes>
         <Route path='/*' element={<LoginPage loginSuccess={onLoginSuccess} />} />
-        <Route path='/register' element={<RegisterPage loginSuccess={onLoginSuccess} />} />
+        <Route path='/register' element={<RegisterPage />} />
       </Routes>
     )
   }
 
   return (
-    <LocaleContext.Provider value={contextValue}>
-      <header>
-        <Navigation logout={onLogout} username={authedUser} />
-      </header>
-      <main>
-        <Routes>
-          <Route path='/home' element={<HomePage />} />
-          <Route path='/add' element={<AddNotePage />} />
-          <Route path='/archive' element={<ArchiveNotePage />} />
-          <Route path="/notes/:id" element={<DetailNotePage />} />
-        </Routes>
-      </main>
-    </ LocaleContext.Provider>
+    <ThemeContext.Provider value={themeContextValue}>
+      <LocaleContext.Provider value={localeContextValue}>
+        <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+          <header>
+            <Navigation logout={onLogout} username={authedUser} />
+          </header>
+          <main>
+            <Routes>
+              <Route path='/home' element={<HomePage />} />
+              <Route path='/add' element={<AddNotePage />} />
+              <Route path='/archive' element={<ArchiveNotePage />} />
+              <Route path="/notes/:id" element={<DetailNotePage />} />
+            </Routes>
+          </main>
+        </div>
+      </LocaleContext.Provider>
+    </ThemeContext.Provider>
   )
 }
 
-export default App
+export default App;

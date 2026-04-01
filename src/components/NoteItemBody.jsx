@@ -1,8 +1,8 @@
 import React from 'react'
 
-const NoteItemBody = ({body}) => {
+const NoteItemBody = ({ body }) => {
     return (
-        <p>{body}</p>
+        <p className='text-gray-800 dark:text-gray-100 truncate transition-colors duration-300' >{body}</p>
     )
 }
 
